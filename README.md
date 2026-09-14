@@ -155,13 +155,18 @@ On first start the recorder logged only `Ended unfinished session` for the run i
 ## AI-assisted development
 
 This script is built by Alessandro ([@alexdelprete][repo-owner]) & Claude — a
-human and an LLM working together. The problem framing, the operational
-constraints (Home Assistant stopped for the whole run, nothing written before
-the schema-version gate, no pinned HA version, every engine pair), the
-Proxmox/PostgreSQL sizing, the naming, and the "what should this actually do?"
-calls are mine. A large share of the design, the code, the test harness
-against real database servers, and this documentation was written by
-[Claude][claude].
+human and an LLM working together. The design is mine: detecting the source
+from Home Assistant's own configuration instead of asking for it, generating
+the target schema from the installed Home Assistant models so that no DDL is
+shipped and no version is pinned, making the tool engine-independent in both
+directions, the pre-flight-then-confirm structure, the configuration block,
+per-environment batch sizing, and the operational rules (Home Assistant
+stopped for the whole run, nothing written before the schema-version gate).
+Claude's first proposal was the conventional shape — a pinned schema, a
+start/stop cycle to let HA create the target, a hard-coded source — and was
+reworked step by step from those decisions. The implementation, the test
+harness against real database servers, the debugging against a live HA
+package, and most of this documentation were written by [Claude][claude].
 
 There is no CI on this repository. Verification is the test matrix in
 *Supported migrations* — four engine pairs run end-to-end against live
