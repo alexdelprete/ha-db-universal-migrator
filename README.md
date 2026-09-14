@@ -1,9 +1,8 @@
 # ha-db-universal-migrator
 
-[![GitHub Release](https://img.shields.io/github/v/release/alexdelprete/ha-db-universal-migrator?style=for-the-badge)](https://github.com/alexdelprete/ha-db-universal-migrator/releases)
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-donate-yellow?style=for-the-badge&logo=buy-me-a-coffee)](https://www.buymeacoffee.com/alexdelprete)
-[![GitHub Downloads](https://img.shields.io/github/downloads/alexdelprete/ha-db-universal-migrator/total?style=for-the-badge)](https://github.com/alexdelprete/ha-db-universal-migrator/releases)
-[![License: MIT](https://img.shields.io/github/license/alexdelprete/ha-db-universal-migrator?style=for-the-badge)](LICENSE)
+[![GitHub Release](https://img.shields.io/github/v/release/alexdelprete/ha-db-universal-migrator?style=for-the-badge&color=009246)](https://github.com/alexdelprete/ha-db-universal-migrator/releases)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-donate-F1F2F1?style=for-the-badge&logo=buy-me-a-coffee)](https://www.buymeacoffee.com/alexdelprete)
+[![GitHub Downloads](https://img.shields.io/github/downloads/alexdelprete/ha-db-universal-migrator/total?style=for-the-badge&color=CE2B37)](https://github.com/alexdelprete/ha-db-universal-migrator/releases)
 
 Migrate the Home Assistant **recorder** database between engines — **SQLite, MariaDB, MySQL, PostgreSQL** — in any direction, keeping the full history: states, events, long-term statistics, everything.
 
