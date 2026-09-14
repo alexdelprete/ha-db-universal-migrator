@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.3 — 2026-09-14
+
+- Renamed to `ha-db-universal-migrator`. No functional change.
+
 ## 1.0.2 — 2026-09-14
 
 - Driver version reporting made defensive (`mysqlclient` builds without `__version__`).

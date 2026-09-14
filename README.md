@@ -1,4 +1,4 @@
-# ha-recorder-universal-migrate
+# ha-db-universal-migrator
 
 Migrate the Home Assistant **recorder** database between engines — **SQLite, MariaDB, MySQL, PostgreSQL** — in any direction, keeping the full history: states, events, long-term statistics, everything.
 
@@ -54,7 +54,7 @@ DST_ADMIN_PASSWORD = ""
 # Copy behaviour
 BATCH_ROWS   = 0                 # 0 = auto per table
 INSERT_ROWS  = 0                 # 0 = auto per table (MariaDB/MySQL/SQLite targets)
-LOG_FILE     = "/config/ha-recorder-universal-migrate.log"
+LOG_FILE     = "/config/ha-db-universal-migrator.log"
 PG_MAINTENANCE_WORK_MEM = ""     # e.g. "1GB" for the index rebuild on a PostgreSQL target
 
 # Safety
@@ -71,15 +71,15 @@ Put the script in HA's config directory, then run it with HA's interpreter:
 
 ```bash
 # Container (docker compose)
-docker compose run --rm --entrypoint python3 homeassistant /config/ha-recorder-universal-migrate.py --dry-run
-docker compose run --rm --entrypoint python3 homeassistant /config/ha-recorder-universal-migrate.py
+docker compose run --rm --entrypoint python3 homeassistant /config/ha-db-universal-migrator.py --dry-run
+docker compose run --rm --entrypoint python3 homeassistant /config/ha-db-universal-migrator.py
 
 # Core / venv
 source /srv/homeassistant/bin/activate
-python3 ha-recorder-universal-migrate.py --dry-run
+python3 ha-db-universal-migrator.py --dry-run
 
 # Supervised
-docker exec -it homeassistant python3 /config/ha-recorder-universal-migrate.py --dry-run
+docker exec -it homeassistant python3 /config/ha-db-universal-migrator.py --dry-run
 ```
 
 Flags: `--dry-run` runs pre-flight only and writes nothing; `--yes` skips the confirmation prompt.

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Home Assistant recorder migration between database engines
-Version 1.0.2 (2026-09-14)
+Version 1.0.3 (2026-09-14)
   source:  SQLite | MariaDB | MySQL | PostgreSQL   (detected from HA's configuration)
   target:  SQLite | MariaDB | MySQL | PostgreSQL   (DST_TYPE below)
 
@@ -18,9 +18,9 @@ and refuses to run unless the installed models report the same number.
 
 Run it with HA's own Python, with HA STOPPED for the whole duration:
 
-  Container:  docker compose run --rm --entrypoint python3 homeassistant /config/ha-recorder-universal-migrate.py
-  Core/venv:  source /srv/homeassistant/bin/activate && python3 ha-recorder-universal-migrate.py
-  Supervised: docker exec -it homeassistant python3 /config/ha-recorder-universal-migrate.py
+  Container:  docker compose run --rm --entrypoint python3 homeassistant /config/ha-db-universal-migrator.py
+  Core/venv:  source /srv/homeassistant/bin/activate && python3 ha-db-universal-migrator.py
+  Supervised: docker exec -it homeassistant python3 /config/ha-db-universal-migrator.py
 
 Flags:  --dry-run   run pre-flight only, write nothing
         --yes       skip the confirmation prompt
@@ -79,7 +79,7 @@ BATCH_ROWS   = 0
 # PostgreSQL uses COPY and ignores this
 INSERT_ROWS  = 0
 # Full log of every step, row counts and timings; appended, never truncated
-LOG_FILE     = "/config/ha-recorder-universal-migrate.log"
+LOG_FILE     = "/config/ha-db-universal-migrator.log"
 
 # PostgreSQL target only: maintenance_work_mem for the index/FK rebuild phase,
 # set per session (no server restart). Empty = keep the server's setting.
@@ -99,7 +99,7 @@ ASSUME_YES             = False
 # No user-serviceable parts below this line
 # ---------------------------------------------------------------------------
 
-__version__ = "1.0.2"
+__version__ = "1.0.3"
 
 import argparse
 import datetime as _dt
@@ -179,7 +179,7 @@ def fail(msg, code=1):
 # Phase 0a: interpreter and imports
 # ---------------------------------------------------------------------------
 
-log(f"=== ha-recorder-universal-migrate.py {__version__} — pre-flight ===")
+log(f"=== ha-db-universal-migrator.py {__version__} — pre-flight ===")
 log(f"Interpreter      {sys.executable}  ({sys.version.split()[0]})")
 
 try:
@@ -189,9 +189,9 @@ except ImportError as e:
     log("homeassistant    NOT IMPORTABLE")
     log("")
     log("This script must run with the Python that has Home Assistant installed.")
-    log("  Container:   docker compose run --rm --entrypoint python3 homeassistant /config/ha-recorder-universal-migrate.py")
-    log("  Core/venv:   source /srv/homeassistant/bin/activate && python3 ha-recorder-universal-migrate.py")
-    log("  Supervised:  docker exec -it homeassistant python3 /config/ha-recorder-universal-migrate.py")
+    log("  Container:   docker compose run --rm --entrypoint python3 homeassistant /config/ha-db-universal-migrator.py")
+    log("  Core/venv:   source /srv/homeassistant/bin/activate && python3 ha-db-universal-migrator.py")
+    log("  Supervised:  docker exec -it homeassistant python3 /config/ha-db-universal-migrator.py")
     log("")
     log(f"Nothing was checked or written. ({e})")
     sys.exit(2)
