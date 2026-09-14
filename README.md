@@ -1,5 +1,10 @@
 # ha-db-universal-migrator
 
+[![GitHub Release](https://img.shields.io/github/v/release/alexdelprete/ha-db-universal-migrator?style=for-the-badge)](https://github.com/alexdelprete/ha-db-universal-migrator/releases)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-donate-yellow?style=for-the-badge&logo=buy-me-a-coffee)](https://www.buymeacoffee.com/alexdelprete)
+[![GitHub Downloads](https://img.shields.io/github/downloads/alexdelprete/ha-db-universal-migrator/total?style=for-the-badge)](https://github.com/alexdelprete/ha-db-universal-migrator/releases)
+[![License: MIT](https://img.shields.io/github/license/alexdelprete/ha-db-universal-migrator?style=for-the-badge)](LICENSE)
+
 Migrate the Home Assistant **recorder** database between engines — **SQLite, MariaDB, MySQL, PostgreSQL** — in any direction, keeping the full history: states, events, long-term statistics, everything.
 
 Home Assistant's own position is that [changing the recorder database is not supported and loses history](https://www.home-assistant.io/integrations/recorder/). This script exists because that doesn't have to be true.
@@ -147,10 +152,43 @@ On first start the recorder logged only `Ended unfinished session` for the run i
 - **TimescaleDB** and other extensions are not involved; the recorder uses plain SQL and so does this script.
 - **No resume.** A failed copy means drop the target and re-run.
 
+## AI-assisted development
+
+This script is built by Alessandro ([@alexdelprete][repo-owner]) & Claude — a
+human and an LLM working together. The problem framing, the operational
+constraints (Home Assistant stopped for the whole run, nothing written before
+the schema-version gate, no pinned HA version, every engine pair), the
+Proxmox/PostgreSQL sizing, the naming, and the "what should this actually do?"
+calls are mine. A large share of the design, the code, the test harness
+against real database servers, and this documentation was written by
+[Claude][claude].
+
+There is no CI on this repository. Verification is the test matrix in
+*Supported migrations* — four engine pairs run end-to-end against live
+servers with every table compared value by value — and the production
+migration described in *A real run*, which was executed against my own
+Home Assistant with this exact script. This note is here because
+transparency about how software is made matters more than pretending
+otherwise.
+
+## Coffee
+
+_If you find this useful, I'll gladly accept some quality coffee, but please
+don't feel obliged._ :)
+
+[![BuyMeCoffee][buymecoffee-button]][buymecoffee]
+
 ## License
 
-MIT. See `LICENSE`.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgements
 
 The idea of resetting sequences after the copy and the "let HA create the schema, then load data only" pattern come from years of community write-ups on the Home Assistant forum. This script's contribution is doing both from the installed models instead of a shipped DDL file, and doing it for every engine pair.
+
+---
+
+[buymecoffee]: https://www.buymeacoffee.com/alexdelprete
+[buymecoffee-button]: https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=%E2%98%95&slug=alexdelprete&button_colour=FFDD00&font_colour=000000&font_family=Lato&outline_colour=000000&coffee_colour=ffffff
+[repo-owner]: https://github.com/alexdelprete
+[claude]: https://claude.com
