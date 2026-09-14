@@ -4,6 +4,26 @@ Migrate the Home Assistant **recorder** database between engines — **SQLite, M
 
 Home Assistant's own position is that [changing the recorder database is not supported and loses history](https://www.home-assistant.io/integrations/recorder/). This script exists because that doesn't have to be true.
 
+## Supported migrations
+
+Any engine to any other engine. Sources are rows, targets are columns.
+
+| source ↓ / target → | SQLite | MariaDB | MySQL | PostgreSQL |
+|---|:---:|:---:|:---:|:---:|
+| **SQLite** | ◐ | ✅ | ☑ | ✅ |
+| **MariaDB** | ☑ | ◐ | ☑ | ✅ **production** |
+| **MySQL** | ☑ | ☑ | ◐ | ☑ |
+| **PostgreSQL** | ✅ | ☑ | ☑ | ◐ |
+
+| | |
+|---|---|
+| ✅ **tested** | run end-to-end against a real server, every table compared value by value afterwards: strings with escapes and Unicode, booleans, binary context IDs, floats, timezone-aware timestamps, the self-referencing foreign key on `states` |
+| ✅ **production** | the above, plus a real Home Assistant instance migrated and running on the result (see *A real run*) |
+| ☑ **supported** | same code path as a tested combination, not exercised against a server |
+| ◐ **same engine** | allowed only between different databases (another server, another file); the script refuses to migrate a database onto itself |
+
+MariaDB and MySQL share one code path (SQLAlchemy backend `mysql`). Engine versions HA supports: MariaDB ≥ 10.3, MySQL ≥ 8.0, PostgreSQL ≥ 12, SQLite ≥ 3.40.1.
+
 ## What makes it different
 
 - **No DDL is shipped, no HA version is pinned.** The target schema is generated at run time from the recorder models installed in the Home Assistant you are running (`Base.metadata.create_all`), which is exactly how the recorder creates a fresh database. Whatever schema version your HA is on, that is the schema you get.
@@ -94,19 +114,6 @@ Recommended sequence:
 6. Keep the source until you are satisfied.
 
 A failed load leaves the target partial: drop the target database (or file) and re-run. There is no resume.
-
-## Supported combinations
-
-Sources are rows, targets are columns. MariaDB and MySQL share one code path.
-
-| source ↓ / target → | SQLite | MariaDB | MySQL | PostgreSQL |
-|---|---|---|---|---|
-| **SQLite** | new file only | tested | supported | tested |
-| **MariaDB** | supported | other server/db | supported | **tested, production** |
-| **MySQL** | supported | supported | other server/db | supported |
-| **PostgreSQL** | tested | supported | supported | other server/db |
-
-*tested* = end-to-end against a real server with value-level comparison of every table (strings with escapes and Unicode, booleans, binary context IDs, floats, timezone-aware timestamps, a self-referencing foreign key). *supported* = same code path as a tested combination, not exercised against a server. Same-engine migrations are allowed only between different databases.
 
 ## A real run
 
