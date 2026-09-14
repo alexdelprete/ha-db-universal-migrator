@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Home Assistant recorder migration between database engines
-Version 1.0.3 (2026-09-14)
+Version 1.0.4 (2026-09-14)
   source:  SQLite | MariaDB | MySQL | PostgreSQL   (detected from HA's configuration)
   target:  SQLite | MariaDB | MySQL | PostgreSQL   (DST_TYPE below)
 
@@ -99,7 +99,7 @@ ASSUME_YES             = False
 # No user-serviceable parts below this line
 # ---------------------------------------------------------------------------
 
-__version__ = "1.0.3"
+__version__ = "1.0.4"
 
 import argparse
 import datetime as _dt
@@ -282,6 +282,26 @@ def _fix_driver(url, what):
 def _display(url):
     return url.render_as_string(hide_password=True)
 
+# Minimum engine versions supported by the Home Assistant recorder
+_MIN_VERSIONS = {"sqlite": (3, 40, 1), "mariadb": (10, 3, 0), "mysql": (8, 0, 0), "postgresql": (12, 0, 0)}
+
+def _engine_version(backend, server_string):
+    """(engine_name, version_tuple) from a server version string."""
+    m = re.search(r"(\d+)\.(\d+)(?:\.(\d+))?", server_string or "")
+    ver = tuple(int(x) for x in m.groups(default="0")) if m else (0,)
+    if backend == "mysql":
+        name = "mariadb" if "mariadb" in (server_string or "").lower() else "mysql"
+    else:
+        name = backend
+    return name, ver
+
+def _check_min_version(backend, server_string, what):
+    name, ver = _engine_version(backend, server_string)
+    need = _MIN_VERSIONS[name]
+    ok = ver >= need
+    label = f"{name} {'.'.join(map(str, ver))} (HA requires >= {'.'.join(map(str, need))})"
+    return ok, label
+
 # ---------------------------------------------------------------------------
 # Phase 0b: detect the source from the stopped HA's configuration
 # ---------------------------------------------------------------------------
@@ -399,6 +419,10 @@ except Exception as e:
 
 log("")
 log(f"Source  {_display(src_url)}   {src_server}")
+_ok, _label = _check_min_version(SRC_BACKEND, src_server, "source")
+log(f"  version check   {'OK' if _ok else 'BELOW MINIMUM'}   {_label}")
+if not _ok:
+    log("  WARNING: the source engine is below the version HA supports; continuing, but check how HA was running on it")
 
 with src_engine.connect() as c:
     try:
@@ -608,6 +632,11 @@ else:
             log(f"  {s}")
         log("or set DST_ADMIN_USER / DST_ADMIN_PASSWORD to let the script do it.")
         fail(str(e))
+
+_ok, _label = _check_min_version(DST_BACKEND, dst_server, "target")
+log(f"  version check   {'OK' if _ok else 'BELOW MINIMUM'}   {_label}")
+if not _ok:
+    fail("target engine is below the minimum version Home Assistant supports; HA would refuse to start on it")
 
 if REQUIRE_EMPTY_TARGET and dst_tables:
     fail(f"target already has {dst_tables} table(s); drop them (or the database/file), or set REQUIRE_EMPTY_TARGET = False")

@@ -26,7 +26,7 @@ Any engine to any other engine. Sources are rows, targets are columns.
 | ☑ **supported** | same code path as a tested combination, not exercised against a server |
 | ◐ **same engine** | allowed only between different databases (another server, another file); the script refuses to migrate a database onto itself |
 
-MariaDB and MySQL share one code path (SQLAlchemy backend `mysql`). Engine versions HA supports: MariaDB ≥ 10.3, MySQL ≥ 8.0, PostgreSQL ≥ 12, SQLite ≥ 3.40.1.
+MariaDB and MySQL share one code path (SQLAlchemy backend `mysql`). Engine versions HA supports: MariaDB ≥ 10.3, MySQL ≥ 8.0, PostgreSQL ≥ 12, SQLite ≥ 3.40.1. Pre-flight checks both ends against these minimums — a target below them aborts (HA would refuse to start on it), a source below them warns.
 
 ## What makes it different
 

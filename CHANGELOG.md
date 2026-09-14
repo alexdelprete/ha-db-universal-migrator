@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.4 — 2026-09-14
+
+- Pre-flight checks engine versions against the minimums HA supports (SQLite 3.40.1, MariaDB 10.3, MySQL 8.0, PostgreSQL 12): target below minimum aborts, source below minimum warns.
+
 ## 1.0.3 — 2026-09-14
 
 - Renamed to `ha-db-universal-migrator`. No functional change.
