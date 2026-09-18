@@ -6,6 +6,8 @@ Migrate the Home Assistant **recorder** database between engines — **SQLite, M
 
 Home Assistant's own position is that [changing the recorder database is not supported and loses history](https://www.home-assistant.io/integrations/recorder/). This script exists because that doesn't have to be true.
 
+Discussion, questions and reports of engine pairs you have run: [the thread on the Home Assistant community forum][forum].
+
 ## Supported migrations
 
 Any engine to any other engine. Sources are rows, targets are columns.
@@ -159,6 +161,10 @@ The implementation, the test harness against real database servers, the debuggin
 
 There is no CI on this repository. Verification is the test matrix in *Supported migrations* — four engine pairs run end-to-end against live servers with every table compared value by value — and the production migration described in *A real run*, which was executed against Alessandro's own Home Assistant with this exact script. This note is here because transparency about how software is made matters more than pretending otherwise.
 
+## Discussion
+
+The script has its own thread in the *Scripts* category of the Home Assistant community forum: [ha-db-universal-migrator][forum]. Questions, feedback and reports of engine pairs you have run are welcome there; bugs are better as [issues](https://github.com/alexdelprete/ha-db-universal-migrator/issues).
+
 ## Coffee
 
 _If you find this useful, I'll gladly accept some quality coffee, but please don't feel obliged._ :)
@@ -177,5 +183,6 @@ The idea of resetting sequences after the copy and the "let HA create the schema
 
 [buymecoffee]: https://www.buymeacoffee.com/alexdelprete
 [buymecoffee-button]: https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=%E2%98%95&slug=alexdelprete&button_colour=FFDD00&font_colour=000000&font_family=Lato&outline_colour=000000&coffee_colour=ffffff
+[forum]: https://community.home-assistant.io/t/ha-db-universal-migrator-migrate-your-recorder-database-between-sqlite-mariadb-mysql-and-postgresql-without-losing-history/1025181
 [repo-owner]: https://github.com/alexdelprete
 [claude]: https://claude.com
