@@ -6,7 +6,7 @@ Migrate the Home Assistant **recorder** database between engines — **SQLite, M
 
 Home Assistant's own position is that [changing the recorder database is not supported and loses history](https://www.home-assistant.io/integrations/recorder/). This script exists because that doesn't have to be true.
 
-Discussion, questions and reports of engine pairs you have run: [the thread on the Home Assistant community forum][forum].
+The script has its own thread in the *Scripts* category of the Home Assistant community forum: [ha-db-universal-migrator][forum]. Questions, feedback and reports of engine pairs you have run are welcome there; bugs are better as [issues](https://github.com/alexdelprete/ha-db-universal-migrator/issues).
 
 ## Supported migrations
 
@@ -160,10 +160,6 @@ The design is Alessandro's: detecting the source from Home Assistant's own confi
 The implementation, the test harness against real database servers, the debugging against a live HA package, and most of this documentation were written by [Claude][claude].
 
 There is no CI on this repository. Verification is the test matrix in *Supported migrations* — four engine pairs run end-to-end against live servers with every table compared value by value — and the production migration described in *A real run*, which was executed against Alessandro's own Home Assistant with this exact script. This note is here because transparency about how software is made matters more than pretending otherwise.
-
-## Discussion
-
-The script has its own thread in the *Scripts* category of the Home Assistant community forum: [ha-db-universal-migrator][forum]. Questions, feedback and reports of engine pairs you have run are welcome there; bugs are better as [issues](https://github.com/alexdelprete/ha-db-universal-migrator/issues).
 
 ## Coffee
 
