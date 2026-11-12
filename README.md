@@ -101,14 +101,41 @@ docker compose run --rm --entrypoint python3 homeassistant /config/ha-db-univers
 # Core / venv
 source /srv/homeassistant/bin/activate
 python3 ha-db-universal-migrator.py --dry-run
-
-# Supervised
-docker exec -it homeassistant python3 /config/ha-db-universal-migrator.py --dry-run
 ```
 
 Flags: `--dry-run` runs pre-flight only and writes nothing; `--yes` skips the confirmation prompt.
 
-Recommended sequence:
+### Home Assistant OS and Supervised
+
+Here the `homeassistant` container is managed by the Supervisor, and `docker exec` is not an option: the script needs HA stopped, and a stopped container has nothing to exec into. Run a throwaway container from the same image instead.
+
+On HAOS this needs the community **Advanced SSH & Web Terminal** add-on with *Protection mode* disabled, since the official *Terminal & SSH* add-on has no access to the Docker CLI. On Supervised, use the host shell.
+
+Put the script in `/config`, then read the image name and the host path of the config mount:
+
+```bash
+docker inspect homeassistant --format '{{.Config.Image}}'
+docker inspect homeassistant --format '{{range .Mounts}}{{.Source}} {{.Destination}}{{"\n"}}{{end}}'
+```
+
+The config mount is normally `/mnt/data/supervisor/homeassistant` on HAOS and `/usr/share/hassio/homeassistant` on Supervised.
+
+Stop Home Assistant, then run the script in a temporary container built from that image:
+
+```bash
+ha core stop
+
+docker run --rm -it --network hassio \
+  -v /mnt/data/supervisor/homeassistant:/config \
+  --entrypoint python3 IMAGE_FROM_DOCKER_INSPECT \
+  /config/ha-db-universal-migrator.py --dry-run
+```
+
+`--network hassio` is only needed when the target database runs as an add-on (`core-mariadb` and friends); drop it when the target is on another host. The log is written to `/config`, so it survives the throwaway container.
+
+When the real run reports no mismatches, point `recorder.db_url` at the new database, `ha core start`, and re-enable Protection mode.
+
+### Recommended sequence
 
 1. Stop Home Assistant.
 2. Dump the source database.
