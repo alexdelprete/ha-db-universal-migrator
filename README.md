@@ -135,6 +135,73 @@ docker run --rm -it --network hassio \
 
 When the real run reports no mismatches, point `recorder.db_url` at the new database, `ha core start`, and re-enable Protection mode.
 
+### Kubernetes
+
+Run the script as a one-shot Job on the Home Assistant image, with HA's config volume mounted at `/config`. This example migrates the default SQLite file on the `hass-data` claim to a [CloudNativePG](https://cloudnative-pg.io/) cluster, taking the target credentials from its app secret. It is based on a Job shared by simbaja on the [forum thread][forum].
+
+```yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: hass-db-migrator
+  namespace: hass
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app: hass-db-migrator
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: migrator
+          image: ghcr.io/home-assistant/home-assistant:2026.9.1
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -e
+              curl -sSL -o /tmp/ha-db-universal-migrator.py https://raw.githubusercontent.com/alexdelprete/ha-db-universal-migrator/main/ha-db-universal-migrator.py
+              python3 /tmp/ha-db-universal-migrator.py --dry-run
+          env:
+            - name: DST_TYPE
+              value: "postgresql"
+            - name: DST_HOST
+              value: "home-assistant-database-rw.hass.svc"
+            - name: DST_PORT
+              value: "5432"
+            - name: DST_USER
+              valueFrom:
+                secretKeyRef:
+                  name: home-assistant-database-secret
+                  key: username
+            - name: DST_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: home-assistant-database-secret
+                  key: password
+            - name: DST_DB
+              valueFrom:
+                secretKeyRef:
+                  name: home-assistant-database-secret
+                  key: dbname
+          volumeMounts:
+            - name: config
+              mountPath: /config
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: hass-data
+```
+
+Before applying it:
+
+- Set `image` to the exact Home Assistant version that last wrote the database. The schema-version gate refuses any other.
+- Scale Home Assistant to zero (`kubectl -n hass scale deployment/home-assistant --replicas=0`, adjusted to your workload's kind and name). On a SQLite source the script aborts while another process holds a write lock on the file.
+- No source setting is needed: the script reads `configuration.yaml` from the mounted `/config` and falls back to `/config/home-assistant_v2.db` when there is no `recorder.db_url`.
+
+Follow it with `kubectl -n hass logs -f job/hass-db-migrator`. When the dry run is clean, change `--dry-run` to `--yes` (a Job has no terminal, so the confirmation prompt would read end-of-input and cancel), delete the finished Job with `kubectl -n hass delete job hass-db-migrator`, and apply it again. On "no mismatches", point `recorder.db_url` at the new database and scale Home Assistant back up.
+
 ### Recommended sequence
 
 1. Stop Home Assistant.
